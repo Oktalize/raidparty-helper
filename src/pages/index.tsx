@@ -117,7 +117,7 @@ const Home: NextPage = () => {
     <>
       <Flex justifyContent="center" p="10px"><Heading pt="20px" size="lg" mb="90px" textAlign="center" color="white"><Img w="16rem" src="/logo.png"/> Beta Helper</Heading>
       <Flex mt="25px" position="absolute" w="95%" justifyContent="right"><Tooltip bg='purple.300' color="white" placement="left" hasArrow label={currentAccount ? currentAccount : "Click to connect your wallet"}><Button size="xs" pb="6px" onClick={connectWalletHandler}>{currentAccount ? "Connected" : "Connect Wallet"}</Button></Tooltip></Flex></Flex>
-      {badChain && <><Text color="red" textAlign="center" fontSize="xl">Error: Please connect to Rinkeby Testnet and then reload.</Text></>}
+      {badChain && <><Text color="red" textAlign="center" fontSize="xl">Error: Please connect to Rinkeby Testnet.</Text></>}
       <Container maxW="100%">
         <Flex justify="center" w="100%">
         <Box mt="48px" px="16px" py="16px" pt="48px" w="360px" color="purple.900" bg="purple.100" borderRadius="1px" boxShadow="0 -3px 0 0 #352561, 0 3px 0 0 #181030, -3px 0 0 0 #2c2051, 3px 0 0 0 #2c2051, 0 0 0 3px #0b0817, 0 -6px 0 0 #0b0817, 0 6px 0 0 #0b0817, -6px 0 0 0 #0b0817, 6px 0 0 0 #0b0817">
