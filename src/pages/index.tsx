@@ -60,6 +60,7 @@ const Home: NextPage = () => {
       const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
       console.log("Found an account! Address: ", accounts[0]);
       setCurrentAccount(accounts[0]);
+      checkWalletIsConnected();
     } catch (err) {
       console.log(err)
     }
@@ -101,7 +102,14 @@ const Home: NextPage = () => {
   }
 
   useEffect(() => {
+    const runCheck = () =>{ 
+      checkWalletIsConnected();
+    }
+    window.addEventListener("focus", runCheck, false);
     checkWalletIsConnected();
+    return () => {
+      window.removeEventListener("focus", runCheck)
+    }
   }, [pending])
 
 
