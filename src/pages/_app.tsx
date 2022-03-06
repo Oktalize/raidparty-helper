@@ -6,8 +6,7 @@ import { AppProps } from 'next/app'
 import { DefaultSeo } from 'next-seo'
 import { Box, ChakraProvider } from '@chakra-ui/react'
 import { AnimatePresence, motion } from 'framer-motion'
-
-import { DAppProvider } from '@usedapp/core'
+import { Mainnet, DAppProvider, Config } from '@usedapp/core'
 
 import '../styles/css/fonts.css'
 
@@ -22,9 +21,14 @@ Router.events.on('routeChangeError', () => NProgress.done())
 
 const MotionBox = motion(Box)
 
+const config: Config = {
+  autoConnect: true,
+  networks: [Mainnet],
+}
+
 function MyApp({ Component, pageProps, router }: AppProps): JSX.Element {
   return (
-    <DAppProvider config={{}}>
+    <DAppProvider config={config}>
       <ChakraProvider resetCSS theme={customTheme}>
         <DefaultSeo {...SEO} />
         <GlobalStyle>

@@ -9,15 +9,25 @@ import {
   Flex,
   Tooltip,
   Link,
-  Progress,
+  Input,
 } from '@chakra-ui/react'
 import type { NextPage } from 'next'
-import { ethers, utils } from 'ethers'
-import { useEthers, useEtherBalance, useCall, useToken } from '@usedapp/core'
+import { ethers } from 'ethers'
+import { useEthers, useCall, useToken } from '@usedapp/core'
 import { Contract } from '@ethersproject/contracts'
-import { TOKEN_ABI, TOKEN_ADDRESS, BOSS_TYPES } from '../constants'
+import { TOKEN_ABI, TOKEN_ADDRESS } from '../constants'
 import Claim from '../components/Claim'
 import Status from '../components/Status'
+
+// TODO: (in widget) Estimated time remaining for boss
+// TODO: Move inline styles into chakra theme
+// TODO: Move more functions into separate files
+// TODO: More layout changes
+// TODO: Ability to track multiple wallets and aggregate the data
+// TODO: Maybe on hover over each account shows pending cfti + wallet
+// TODO: URL path for easy saving/sharing
+// TODO: Maybe remove claiming all together and turn app readOnly
+// TODO: General app cleanup, constants, etc
 
 type RaidBoss = {
   weight: any
@@ -44,16 +54,13 @@ const usePartyDPB = (address: string | null | undefined) => {
   }
   return value ? Number(value?.[0]) : 0
 }
-
 const useRaidBosses = (boss: number | null | undefined) => {
   const { value, error } =
-    useCall(
-      boss && {
-        contract: new Contract(TOKEN_ADDRESS['RAID'], TOKEN_ABI), // instance of called contract
-        method: 'bosses', // Method to be called
-        args: [0], // Method arguments
-      }
-    ) ?? {}
+    useCall({
+      contract: new Contract(TOKEN_ADDRESS['RAID'], TOKEN_ABI), // instance of called contract
+      method: 'bosses', // Method to be called
+      args: [boss], // Method arguments
+    }) ?? {}
   if (error) {
     console.error(error.message)
     return undefined
@@ -110,35 +117,27 @@ const useCFTIBalance = (address: string | null | undefined) => {
   return value?.[0]
 }
 
-const calculateCFTI = ({
-  blocks,
-  multiplier,
-  DPB,
-}: {
-  blocks: any
-  multiplier: any
-  DPB: any
-}) => {
-  return (blocks * multiplier * DPB) / 10 ** 18
-}
-
-//       setBossCfti((maxHealth * multiplier * raiderDPB) / 10 ** 18)
-//       setNextCfti((blocksLeft * multiplier * raiderDPB) / 10 ** 18)
-
 const Home: NextPage = () => {
-  const [currentAccount, setCurrentAccount] = useState(null)
   const [pending, setPending] = useState(false)
   const [badChain, setBadChain] = useState(false)
   const { activateBrowserWallet, account, chainId, library } = useEthers()
+  const [currentAccount, setCurrentAccount] = useState(account || '0x0')
   const CFTI = useToken(TOKEN_ADDRESS['CFTI'])
-  const CFTIBalance = formatUnits(useCFTIBalance(account), CFTI?.decimals)
-  const unclaimedCFTI = formatUnits(useUnclaimedCFTI(account), CFTI?.decimals)
-  const raidDmg = usePartyDPB(account)
+  const CFTIBalance = formatUnits(
+    useCFTIBalance(currentAccount),
+    CFTI?.decimals
+  )
+  const unclaimedCFTI = formatUnits(
+    useUnclaimedCFTI(currentAccount),
+    CFTI?.decimals
+  )
+  const raidDmg = usePartyDPB(currentAccount)
   const raidData = useRaidData()
   const raidBoss = useRaidBosses(Number(raidData?.boss))
 
   const checkWalletIsConnected = async () => {
     if (account) {
+      setCurrentAccount(account)
       console.log('Found an authorized account: ', account)
       if (chainId === 1) {
         setBadChain(false)
@@ -219,6 +218,15 @@ const Home: NextPage = () => {
         </>
       )}
       <Container maxW="100%">
+        <Flex justify="center" mb="60px">
+          <Input
+            w="395px"
+            textAlign="center"
+            placeholder={account ? account : '0x0'}
+            value={currentAccount}
+            onChange={({ target }) => setCurrentAccount(target.value)}
+          />
+        </Flex>
         <Status
           bossTypeNum={Number(raidData?.boss)}
           bossHealth={raidData?.health}
