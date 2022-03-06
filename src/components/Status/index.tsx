@@ -61,14 +61,14 @@ export default ({
       //   setCounter(bossHealth * 15)
       // }
     }
-    const bossTimer = setTimeout(() => {
-      if (counter > 0) {
-        setCounter(counter - 1)
-      }
-    }, 1000)
-    return () => {
-      clearTimeout(bossTimer)
-    }
+    // const bossTimer = setTimeout(() => {
+    //   if (counter > 0) {
+    //     setCounter(counter - 1)
+    //   }
+    // }, 1000)
+    // return () => {
+    //   clearTimeout(bossTimer)
+    // }
   }, [counter, bossHealth])
 
   const BossCrowns = ({ bossTypeNum }: { bossTypeNum?: any }) => {
