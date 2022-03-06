@@ -116,8 +116,6 @@ export const TOKEN_ABI = [
                 "type": "uint128"
             }
         ],
-        constant: true,
-        payable: false,
         stateMutability: 'view',
         type: 'function'
     }, {

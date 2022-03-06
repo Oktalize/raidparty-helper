@@ -12,120 +12,141 @@ import {
   Progress,
 } from '@chakra-ui/react'
 import type { NextPage } from 'next'
-import { ethers } from 'ethers'
+import { ethers, utils } from 'ethers'
+import { useEthers, useEtherBalance, useCall, useToken } from '@usedapp/core'
+import { Contract } from '@ethersproject/contracts'
 import { TOKEN_ABI, TOKEN_ADDRESS, BOSS_TYPES } from '../constants'
 import Claim from '../components/Claim'
 import Status from '../components/Status'
 
-const Home: NextPage = () => {
-  const [currentAccount, setCurrentAccount] = useState(null)
-  const [tokenBalance, setTokenBalance] = useState(0)
-  const [unclaimedBalance, setUnclaimedBalance] = useState(0)
-  const [blockNum, setBlockNum] = useState(0)
-  const [bossHealth, setBossHealth] = useState(0)
-  const [bossMaxHealth, setBossMaxHealth] = useState(0)
-  const [raidDmg, setRaidDmg] = useState(0)
-  const [bossTypeNum, setBossTypeNum] = useState(0)
-  const [nextCfti, setNextCfti] = useState(0)
-  const [bossCfti, setBossCfti] = useState(0)
-  const [pending, setPending] = useState(false)
-  const [badChain, setBadChain] = useState(false)
+type RaidBoss = {
+  weight: any
+  blockHealth: any
+  multiplier: any
+}
 
-  const updateCFTI = async (provider: any, account: any) => {
-    const cftiContract = new ethers.Contract(
-      TOKEN_ADDRESS['CFTI'],
-      TOKEN_ABI,
-      provider
-    )
-    cftiContract.balanceOf(account).then((value: any) => {
-      setTokenBalance(Number(value) / 10 ** 18)
-    })
+const formatUnits = (number: any, decimal: any) => {
+  return Number(number) / 10 ** decimal
+}
 
-    const claimContract = new ethers.Contract(
-      TOKEN_ADDRESS['CFTIClaimer'],
-      TOKEN_ABI,
-      provider
-    )
-    claimContract.getPendingRewards(account).then((value: any) => {
-      setUnclaimedBalance(Number(value) / 10 ** 18)
-    })
+const usePartyDPB = (address: string | null | undefined) => {
+  const { value, error } =
+    useCall(
+      address && {
+        contract: new Contract(TOKEN_ADDRESS['PARTY'], TOKEN_ABI), // instance of called contract
+        method: 'getDamage', // Method to be called
+        args: [address], // Method arguments
+      }
+    ) ?? {}
+  if (error) {
+    console.error(error.message)
+    return 0
+  }
+  return value ? Number(value?.[0]) : 0
+}
 
-    const partyContract = new ethers.Contract(
-      TOKEN_ADDRESS['PARTY'],
-      TOKEN_ABI,
-      provider
-    )
-    partyContract.getDamage(account).then((dpb: any) => {
-      const raiderDPB = Number(dpb)
-      setRaidDmg(raiderDPB)
-      const raidContract = new ethers.Contract(
-        TOKEN_ADDRESS['RAID'],
-        TOKEN_ABI,
-        provider
-      )
-      raidContract.getRaidData().then((raid: any) => {
-        const bossNum = Number(raid.boss)
-        setBossTypeNum(bossNum)
-        raidContract.bosses(Number(raid.boss)).then((boss: any) => {
-          const blocksLeft = Number(raid.health)
-          const maxHealth = Number(raid.maxHealth)
-          const multiplier = Number(boss.multiplier)
-          setBossHealth(blocksLeft)
-          setBossMaxHealth(maxHealth)
-          setBossCfti((maxHealth * multiplier * raiderDPB) / 10 ** 18)
-          setNextCfti((blocksLeft * multiplier * raiderDPB) / 10 ** 18)
-        })
-      })
-    })
+const useRaidBosses = (boss: number | null | undefined) => {
+  const { value, error } =
+    useCall(
+      boss && {
+        contract: new Contract(TOKEN_ADDRESS['RAID'], TOKEN_ABI), // instance of called contract
+        method: 'bosses', // Method to be called
+        args: [0], // Method arguments
+      }
+    ) ?? {}
+  if (error) {
+    console.error(error.message)
+    return undefined
+  }
+  return value as unknown as RaidBoss
+}
+
+const useRaidData = () => {
+  const { value, error } =
+    useCall({
+      contract: new Contract(TOKEN_ADDRESS['RAID'], TOKEN_ABI), // instance of called contract
+      method: 'getRaidData', // Method to be called
+      args: [], // Method arguments
+    }) ?? {}
+  if (error) {
+    console.error(error.message)
+    return 0
   }
 
+  // console.log(value)
+  return value?.[0]
+}
+
+const useUnclaimedCFTI = (address: string | null | undefined) => {
+  const { value, error } =
+    useCall(
+      address &&
+        TOKEN_ADDRESS['RAID'] && {
+          contract: new Contract(TOKEN_ADDRESS['RAID'], TOKEN_ABI), // instance of called contract
+          method: 'getPendingRewards', // Method to be called
+          args: [address], // Method arguments
+        }
+    ) ?? {}
+  if (error) {
+    console.error(error.message)
+    return undefined
+  }
+  return value?.[0]
+}
+
+const useCFTIBalance = (address: string | null | undefined) => {
+  const { value, error } =
+    useCall(
+      address && {
+        contract: new Contract(TOKEN_ADDRESS['CFTI'], TOKEN_ABI), // instance of called contract
+        method: 'balanceOf', // Method to be called
+        args: [address], // Method arguments
+      }
+    ) ?? {}
+  if (error) {
+    console.error(error.message)
+    return 0
+  }
+  return value?.[0]
+}
+
+const calculateCFTI = ({
+  blocks,
+  multiplier,
+  DPB,
+}: {
+  blocks: any
+  multiplier: any
+  DPB: any
+}) => {
+  return (blocks * multiplier * DPB) / 10 ** 18
+}
+
+//       setBossCfti((maxHealth * multiplier * raiderDPB) / 10 ** 18)
+//       setNextCfti((blocksLeft * multiplier * raiderDPB) / 10 ** 18)
+
+const Home: NextPage = () => {
+  const [currentAccount, setCurrentAccount] = useState(null)
+  const [pending, setPending] = useState(false)
+  const [badChain, setBadChain] = useState(false)
+  const { activateBrowserWallet, account, chainId, library } = useEthers()
+  const CFTI = useToken(TOKEN_ADDRESS['CFTI'])
+  const CFTIBalance = formatUnits(useCFTIBalance(account), CFTI?.decimals)
+  const unclaimedCFTI = formatUnits(useUnclaimedCFTI(account), CFTI?.decimals)
+  const raidDmg = usePartyDPB(account)
+  const raidData = useRaidData()
+  const raidBoss = useRaidBosses(Number(raidData?.boss))
+
   const checkWalletIsConnected = async () => {
-    const { ethereum }: any = window
-
-    if (!ethereum) {
-      console.log('Make sure you have Metamask installed!')
-      return
-    } else {
-      console.log("Wallet exists! We're ready to go!")
-    }
-
-    const accounts = await ethereum.request({ method: 'eth_accounts' })
-
-    if (accounts.length !== 0) {
-      const account = accounts[0]
+    if (account) {
       console.log('Found an authorized account: ', account)
-      setCurrentAccount(account)
-      const provider = new ethers.providers.Web3Provider(ethereum)
-      const { chainId } = await provider.getNetwork()
       if (chainId === 1) {
         setBadChain(false)
-        updateCFTI(provider, account)
-        provider.on('block', (block) => {
-          updateCFTI(provider, account)
-          setBlockNum(block)
-        })
       } else {
         setBadChain(true)
       }
     } else {
       console.log('No authorized account found')
-    }
-  }
-
-  const connectWalletHandler = async () => {
-    const { ethereum }: any = window
-
-    if (!ethereum) {
-      alert('Please install Metamask!')
-    }
-
-    try {
-      const accounts = await ethereum.request({ method: 'eth_requestAccounts' })
-      console.log('Found an account! Address: ', accounts[0])
-      setCurrentAccount(accounts[0])
-      checkWalletIsConnected()
-    } catch (err) {
-      console.log(err)
     }
   }
 
@@ -167,14 +188,8 @@ const Home: NextPage = () => {
   }
 
   useEffect(() => {
-    // const runCheck = () =>{
-    //   checkWalletIsConnected();
-    // }
-    // window.addEventListener("focus", runCheck, false);
-    // return () => {
-    //   window.removeEventListener("focus", runCheck)
-    // }
-  }, [pending])
+    checkWalletIsConnected()
+  }, [account])
 
   return (
     <>
@@ -188,12 +203,10 @@ const Home: NextPage = () => {
             color="white"
             placement="left"
             hasArrow
-            label={
-              currentAccount ? currentAccount : 'Click to connect your wallet'
-            }
+            label={account ? account : 'Click to connect your wallet'}
           >
-            <Button size="xs" pb="6px" onClick={connectWalletHandler}>
-              {currentAccount ? 'Connected' : 'Connect Wallet'}
+            <Button size="xs" pb="6px" onClick={activateBrowserWallet}>
+              {account ? 'Connected' : 'Connect Wallet'}
             </Button>
           </Tooltip>
         </Flex>
@@ -207,16 +220,15 @@ const Home: NextPage = () => {
       )}
       <Container maxW="100%">
         <Status
-          bossTypeNum={bossTypeNum}
-          bossCfti={bossCfti}
-          nextCfti={nextCfti}
-          bossHealth={bossHealth}
-          bossMaxHealth={bossMaxHealth}
+          bossTypeNum={Number(raidData?.boss)}
+          bossHealth={raidData?.health}
+          bossMaxHealth={raidData?.maxHealth}
           raidDmg={raidDmg}
+          multiplier={raidBoss?.multiplier}
         />
         <Claim
-          unclaimedBalance={unclaimedBalance}
-          tokenBalance={tokenBalance}
+          unclaimedBalance={unclaimedCFTI}
+          tokenBalance={CFTIBalance}
           pending={pending}
           claimTokens={claimTokens}
         />

@@ -13,30 +13,48 @@ import BannerBox from '../Global/BannerBox'
 import { BOSS_TYPES } from '../../constants'
 
 type StatusProps = {
-  bossTypeNum: any
-  bossCfti: any
-  nextCfti: any
+  bossTypeNum?: any
   bossHealth: any
   bossMaxHealth: any
   raidDmg: any
+  multiplier: any
+}
+
+const calculateCFTI = ({
+  blocks,
+  multiplier,
+  DPB,
+}: {
+  blocks: any
+  multiplier: any
+  DPB: any
+}) => {
+  return (blocks * multiplier * DPB) / 10 ** 18
 }
 
 export default ({
   bossTypeNum,
-  bossCfti,
-  nextCfti,
   bossHealth,
   bossMaxHealth,
   raidDmg,
+  multiplier,
 }: StatusProps) => {
-  const BossCrowns = ({ bossTypeNum }: { bossTypeNum: any }) => {
-    const crowns = [...Array(bossTypeNum + 1)].map(
-      (value: undefined, index: number) => {
-        return <Img key={index} src="/boss-crown-small.png" />
-      }
-    )
+  const BossCrowns = ({ bossTypeNum }: { bossTypeNum?: any }) => {
+    if (bossTypeNum) {
+      const crowns = [...Array(bossTypeNum + 1)].map(
+        (value: undefined, index: number) => {
+          return <Img key={index} src="/boss-crown-small.png" />
+        }
+      )
 
-    return <Flex h="32px">{crowns}</Flex>
+      return <Flex h="32px">{crowns}</Flex>
+    } else {
+      return (
+        <Flex h="32px">
+          <Img src="/boss-crown-small.png" />
+        </Flex>
+      )
+    }
   }
 
   const bossPercent = () => {
@@ -46,6 +64,26 @@ export default ({
   const bossPercentInverse = () => {
     return (bossPercent() - 100) / -1
   }
+  // bossCfti={calculateCFTI({
+  //   blocks: raidData?.maxHealth,
+  //   multiplier: Number(raidBoss?.multiplier),
+  //   DPB: raidDmg,
+  // })}
+  // nextCfti={calculateCFTI({
+  //   blocks: raidData?.health,
+  //   multiplier: Number(raidBoss?.multiplier),
+  //   DPB: raidDmg,
+  // })}
+  const bossCfti = calculateCFTI({
+    blocks: bossMaxHealth,
+    multiplier,
+    DPB: raidDmg,
+  })
+  const nextCfti = calculateCFTI({
+    blocks: bossHealth,
+    multiplier,
+    DPB: raidDmg,
+  })
 
   return (
     <BannerBox heading={'Current Raid'}>
