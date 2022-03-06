@@ -1,6 +1,5 @@
 export const TOKEN_ADDRESS = {
     "CFTI": '0xcfef8857e9c80e3440a823971420f7fa5f62f020',
-    "CFTIClaimer": '0xfa209a705a4da0a240aa355c889ed0995154d7eb',
     "PARTY": '0xd311bdacb151b72bddfee9cbdc414af22a5e38dc',
     "RAID": '0xfa209a705a4da0a240aa355c889ed0995154d7eb'
 }

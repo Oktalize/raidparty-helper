@@ -22,11 +22,10 @@ Router.events.on('routeChangeError', () => NProgress.done())
 const MotionBox = motion(Box)
 
 const config: Config = {
-  autoConnect: true,
-  networks: [Mainnet],
+  readOnlyChainId: Mainnet.chainId,
 }
 
-function MyApp({ Component, pageProps, router }: AppProps): JSX.Element {
+function NextApp({ Component, pageProps, router }: AppProps): JSX.Element {
   return (
     <DAppProvider config={config}>
       <ChakraProvider resetCSS theme={customTheme}>
@@ -55,4 +54,4 @@ function MyApp({ Component, pageProps, router }: AppProps): JSX.Element {
   )
 }
 
-export default MyApp
+export default NextApp

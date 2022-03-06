@@ -9,24 +9,20 @@ import {
   Flex,
   Tooltip,
   Link,
-  Input,
 } from '@chakra-ui/react'
 import type { NextPage } from 'next'
-import { ethers } from 'ethers'
 import { useEthers, useCall, useToken } from '@usedapp/core'
 import { Contract } from '@ethersproject/contracts'
 import { TOKEN_ABI, TOKEN_ADDRESS } from '../constants'
-import Claim from '../components/Claim'
 import Status from '../components/Status'
 
-// TODO: (in widget) Estimated time remaining for boss
+// TODO: Fix timer for boss to update every block
 // TODO: Move inline styles into chakra theme
 // TODO: Move more functions into separate files
 // TODO: More layout changes
 // TODO: Ability to track multiple wallets and aggregate the data
 // TODO: Maybe on hover over each account shows pending cfti + wallet
 // TODO: URL path for easy saving/sharing
-// TODO: Maybe remove claiming all together and turn app readOnly
 // TODO: General app cleanup, constants, etc
 
 type RaidBoss = {
@@ -55,11 +51,12 @@ const usePartyDPB = (address: string | null | undefined) => {
   return value ? Number(value?.[0]) : 0
 }
 const useRaidBosses = (boss: number | null | undefined) => {
+  const bossNum = boss ? boss : 0
   const { value, error } =
     useCall({
       contract: new Contract(TOKEN_ADDRESS['RAID'], TOKEN_ABI), // instance of called contract
       method: 'bosses', // Method to be called
-      args: [boss], // Method arguments
+      args: [bossNum], // Method arguments
     }) ?? {}
   if (error) {
     console.error(error.message)
@@ -118,10 +115,9 @@ const useCFTIBalance = (address: string | null | undefined) => {
 }
 
 const Home: NextPage = () => {
-  const [pending, setPending] = useState(false)
   const [badChain, setBadChain] = useState(false)
-  const { activateBrowserWallet, account, chainId, library } = useEthers()
-  const [currentAccount, setCurrentAccount] = useState(account || '0x0')
+  const { activateBrowserWallet, account, chainId } = useEthers()
+  const [currentAccount, setCurrentAccount] = useState(account)
   const CFTI = useToken(TOKEN_ADDRESS['CFTI'])
   const CFTIBalance = formatUnits(
     useCFTIBalance(currentAccount),
@@ -149,43 +145,6 @@ const Home: NextPage = () => {
     }
   }
 
-  const claimTokens = async () => {
-    try {
-      const { ethereum }: any = window
-
-      if (ethereum) {
-        const provider = new ethers.providers.Web3Provider(ethereum)
-        const { chainId } = await provider.getNetwork()
-        if (chainId === 1) {
-          setBadChain(false)
-          const signer = provider.getSigner()
-          const claimContract = new ethers.Contract(
-            TOKEN_ADDRESS['RAID'],
-            TOKEN_ABI,
-            signer
-          )
-
-          console.log('Initialize claim')
-          let claimTxn = await claimContract.claimRewards(currentAccount)
-
-          setPending(true)
-
-          console.log('Claiming... please wait')
-          await claimTxn.wait()
-
-          alert(`You got tokens on the way!`)
-          setPending(false)
-        } else {
-          setBadChain(true)
-        }
-      } else {
-        console.log('Ethereum object does not exist')
-      }
-    } catch (err) {
-      console.log(err)
-    }
-  }
-
   useEffect(() => {
     checkWalletIsConnected()
   }, [account])
@@ -193,8 +152,8 @@ const Home: NextPage = () => {
   return (
     <>
       <Flex justifyContent="center" p="10px">
-        <Heading pt="20px" size="lg" mb="90px" textAlign="center" color="white">
-          <Img w="16rem" src="/logo.png" /> Helper Tool
+        <Heading pt="20px" size="lg" mb="50px" textAlign="center" color="white">
+          <Img w="16rem" src="/logo.png" /> Tracker
         </Heading>
         <Flex mt="25px" position="absolute" w="95%" justifyContent="right">
           <Tooltip
@@ -213,41 +172,29 @@ const Home: NextPage = () => {
       {badChain && (
         <>
           <Text color="red" textAlign="center" fontSize="xl">
-            Error: Please connect to Mainnet.
+            Error: Please connect to Ethereum Mainnet.
           </Text>
         </>
       )}
       <Container maxW="100%">
-        <Flex justify="center" mb="60px">
-          <Input
-            w="395px"
-            textAlign="center"
-            placeholder={account ? account : '0x0'}
-            value={currentAccount}
-            onChange={({ target }) => setCurrentAccount(target.value)}
-          />
-        </Flex>
         <Status
+          connected={account}
           bossTypeNum={Number(raidData?.boss)}
           bossHealth={raidData?.health}
           bossMaxHealth={raidData?.maxHealth}
           raidDmg={raidDmg}
           multiplier={raidBoss?.multiplier}
-        />
-        <Claim
           unclaimedBalance={unclaimedCFTI}
           tokenBalance={CFTIBalance}
-          pending={pending}
-          claimTokens={claimTokens}
         />
       </Container>
-      <Box mt="100px" textAlign="center" textColor="white.50">
+      <Box mt="80px" textAlign="center" textColor="white.50">
         <Text fontSize="xs" color="white">
-          Important: This an unofficial utility for accessing{' '}
+          Important: This an unofficial utility for tracking{' '}
           <Link color="purple.900" href="https://raid.party/">
             Raid Party
-          </Link>{' '}
-          contracts.{' '}
+          </Link>
+          .{' '}
         </Text>
         <Text fontSize="xs" color="white">
           This is not officially endorsed, but you can review the source code
@@ -261,11 +208,25 @@ const Home: NextPage = () => {
           .
         </Text>
       </Box>
-      <Box mt="50px" textAlign="center">
+      <Box mt="30px" textAlign="center">
         <Text fontSize="xs" color="white">
           Made by:{' '}
-          <Link color="purple.900" href="https://oktal.eth.link">
+          <Link
+            color="purple.900"
+            href="https://oktal.eth.link"
+            target="_blank"
+          >
             oktal.eth
+          </Link>
+        </Text>
+        <Text fontSize="xs" color="white">
+          Twitter:{' '}
+          <Link
+            color="purple.900"
+            href="https://twitter.com/oktalize"
+            target="_blank"
+          >
+            @oktalize
           </Link>
         </Text>
       </Box>
