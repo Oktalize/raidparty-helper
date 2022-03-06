@@ -14,6 +14,8 @@ import {
 import type { NextPage } from 'next'
 import { ethers } from 'ethers'
 import { TOKEN_ABI, TOKEN_ADDRESS, BOSS_TYPES } from '../constants'
+import Claim from '../components/Claim'
+import Status from '../components/Status'
 
 const Home: NextPage = () => {
   const [currentAccount, setCurrentAccount] = useState(null)
@@ -164,18 +166,11 @@ const Home: NextPage = () => {
     }
   }
 
-  const bossPercent = () => {
-    return ((bossHealth / bossMaxHealth) * 100 - 100) / -1
-  }
-
   useEffect(() => {
     // const runCheck = () =>{
     //   checkWalletIsConnected();
     // }
-
     // window.addEventListener("focus", runCheck, false);
-
-    checkWalletIsConnected()
     // return () => {
     //   window.removeEventListener("focus", runCheck)
     // }
@@ -211,71 +206,20 @@ const Home: NextPage = () => {
         </>
       )}
       <Container maxW="100%">
-        <Heading>Boss {bossTypeNum}</Heading>
-        <Progress value={bossPercent()} colorScheme="red" />
-        <Heading>
-          CFTI Left: {nextCfti.toFixed(3)} of {bossCfti.toFixed(3)} CFTI
-        </Heading>
-        <Flex justify="center" w="100%">
-          <Box
-            mt="48px"
-            px="16px"
-            py="16px"
-            pt="48px"
-            w="360px"
-            color="purple.900"
-            bg="purple.100"
-            borderRadius="1px"
-            boxShadow="0 -3px 0 0 #352561, 0 3px 0 0 #181030, -3px 0 0 0 #2c2051, 3px 0 0 0 #2c2051, 0 0 0 3px #0b0817, 0 -6px 0 0 #0b0817, 0 6px 0 0 #0b0817, -6px 0 0 0 #0b0817, 6px 0 0 0 #0b0817"
-          >
-            <Flex mt="-76px" justify="center">
-              <Img h="48px" src="/banner-l.png" />
-              <Box
-                bgImage="/banner-m.png"
-                bgSize="48px"
-                h="48px"
-                w="150px"
-                textAlign="center"
-              >
-                <Text fontSize="lg" mt="-5px" color="white" fontWeight="bold">
-                  Your Earnings
-                </Text>
-              </Box>
-              <Img h="48px" src="/banner-r.png" />
-            </Flex>
-            <Box p="16px" textAlign="center">
-              <Text color="purple.800" fontWeight="600">
-                Current earnings summary
-              </Text>
-              <Flex justify="center" m="24px">
-                <Box
-                  minWidth="140px"
-                  px="32px"
-                  pt="4px"
-                  pb="4px"
-                  bg="linear-gradient(180deg,#3d1e78,#27134e 97.03%)"
-                  boxShadow="0 -3px 0 0 #562da3, 0 3px 0 0 #562da3, -3px 0 0 0 #562da3, 3px 0 0 0 #562da3, 0 0 0 3px #0f0c1b, 0 -6px 0 0 #0f0c1b, 0 6px 0 0 #0f0c1b, -6px 0 0 0 #0f0c1b, 6px 0 0 0 #0f0c1b"
-                >
-                  <Text
-                    fontSize="xx-large"
-                    fontWeight="800"
-                    color="white"
-                    lineHeight="32px"
-                  >
-                    {unclaimedBalance.toFixed(3)}
-                  </Text>
-                  <Text fontWeight="600">CFTI</Text>
-                </Box>
-              </Flex>
-              <Text fontSize="xs">
-                Current Balance: {tokenBalance.toFixed(3)}
-              </Text>
-            </Box>
-            <Button disabled={pending} w="100%" onClick={claimTokens}>
-              Claim
-            </Button>
-          </Box>
-        </Flex>
+        <Status
+          bossTypeNum={bossTypeNum}
+          bossCfti={bossCfti}
+          nextCfti={nextCfti}
+          bossHealth={bossHealth}
+          bossMaxHealth={bossMaxHealth}
+          raidDmg={raidDmg}
+        />
+        <Claim
+          unclaimedBalance={unclaimedBalance}
+          tokenBalance={tokenBalance}
+          pending={pending}
+          claimTokens={claimTokens}
+        />
       </Container>
       <Box mt="100px" textAlign="center" textColor="white.50">
         <Text fontSize="xs" color="white">

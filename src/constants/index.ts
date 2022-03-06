@@ -5,9 +5,14 @@ export const TOKEN_ADDRESS = {
     "RAID": '0xfa209a705a4da0a240aa355c889ed0995154d7eb'
 }
 
-export const BOSS_TYPES = {
-    1: "Basic"
-}
+export const BOSS_TYPES = [
+    "Basic",
+    "Strong",
+    "Epic",
+    "Mythic",
+    "Legendary",
+    "Godly"
+]
 
 export const TOKEN_ABI = [
     {
