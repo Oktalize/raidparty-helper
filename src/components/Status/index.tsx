@@ -55,11 +55,11 @@ export default ({
 
   useEffect(() => {
     if (bossHealth) {
-      if (counter === 0) {
-        setCounter(bossHealth * 15)
-      } else if (counter > bossHealth * 15) {
-        setCounter(bossHealth * 15)
-      }
+      // if (counter === 0) {
+      setCounter(bossHealth * 15)
+      // } else if (counter > bossHealth * 15) {
+      //   setCounter(bossHealth * 15)
+      // }
     }
     const bossTimer = setTimeout(() => {
       if (counter > 0) {
