@@ -41,7 +41,7 @@ const calculateCFTI = ({
   }
 }
 
-export default ({
+const Status = ({
   bossTypeNum,
   bossHealth,
   bossMaxHealth,
@@ -247,3 +247,5 @@ export default ({
     </BannerBox>
   )
 }
+
+export default Status

@@ -5,7 +5,7 @@ type BannerBoxProps = {
   children?: JSX.Element | JSX.Element[]
 }
 
-export default ({ heading, children }: BannerBoxProps) => (
+const BannerBox = ({ heading, children }: BannerBoxProps) => (
   <Flex justify="center" w="100%">
     <Box
       mt="48px"
@@ -37,3 +37,5 @@ export default ({ heading, children }: BannerBoxProps) => (
     </Box>
   </Flex>
 )
+
+export default BannerBox

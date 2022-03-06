@@ -115,39 +115,13 @@ const useCFTIBalance = (address: string | null | undefined) => {
 }
 
 const Home: NextPage = () => {
-  const [badChain, setBadChain] = useState(false)
   const { activateBrowserWallet, account, chainId } = useEthers()
-  const [currentAccount, setCurrentAccount] = useState(account)
   const CFTI = useToken(TOKEN_ADDRESS['CFTI'])
-  const CFTIBalance = formatUnits(
-    useCFTIBalance(currentAccount),
-    CFTI?.decimals
-  )
-  const unclaimedCFTI = formatUnits(
-    useUnclaimedCFTI(currentAccount),
-    CFTI?.decimals
-  )
-  const raidDmg = usePartyDPB(currentAccount)
+  const CFTIBalance = formatUnits(useCFTIBalance(account), CFTI?.decimals)
+  const unclaimedCFTI = formatUnits(useUnclaimedCFTI(account), CFTI?.decimals)
+  const raidDmg = usePartyDPB(account)
   const raidData = useRaidData()
   const raidBoss = useRaidBosses(Number(raidData?.boss))
-
-  const checkWalletIsConnected = async () => {
-    if (account) {
-      setCurrentAccount(account)
-      console.log('Found an authorized account: ', account)
-      if (chainId === 1) {
-        setBadChain(false)
-      } else {
-        setBadChain(true)
-      }
-    } else {
-      console.log('No authorized account found')
-    }
-  }
-
-  useEffect(() => {
-    checkWalletIsConnected()
-  }, [account])
 
   return (
     <>
@@ -169,7 +143,7 @@ const Home: NextPage = () => {
           </Tooltip>
         </Flex>
       </Flex>
-      {badChain && (
+      {account && chainId !== 1 && (
         <>
           <Text color="red" textAlign="center" fontSize="xl">
             Error: Please connect to Ethereum Mainnet.
