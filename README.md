@@ -1,4 +1,4 @@
-This is a helper website for the [Raid Party](https://raid.party/) beta on Rinkeby testnet.
+This is a tracking website for the [Raid Party](https://raid.party/).
 
 ## Setup
 ```
