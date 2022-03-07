@@ -183,11 +183,7 @@ const Status = ({
             </GridItem>
           </Grid>
         )}
-        <Text
-          fontSize="md"
-          fontWeight="bold"
-          color={connected ? 'white' : 'gray'}
-        >
+        <Text fontSize="md" fontWeight="bold" color={connected ? '' : 'gray'}>
           Round Earnings:
         </Text>
         <Text color={connected ? '' : 'gray'}>

@@ -114,7 +114,7 @@ const useCFTIBalance = (address: string | null | undefined) => {
 }
 
 const Home: NextPage = () => {
-  const { activateBrowserWallet, account, chainId } = useEthers()
+  const { activateBrowserWallet, deactivate, account, chainId } = useEthers()
   const CFTI = useToken(TOKEN_ADDRESS['CFTI'])
   const CFTIBalance = formatUnits(useCFTIBalance(account), CFTI?.decimals)
   const unclaimedCFTI = formatUnits(useUnclaimedCFTI(account), CFTI?.decimals)
@@ -136,7 +136,17 @@ const Home: NextPage = () => {
             hasArrow
             label={account ? account : 'Click to connect your wallet'}
           >
-            <Button size="xs" pb="6px" onClick={activateBrowserWallet}>
+            <Button
+              size="xs"
+              pb="6px"
+              onClick={() => {
+                if (account) {
+                  deactivate()
+                } else {
+                  activateBrowserWallet()
+                }
+              }}
+            >
               {account ? 'Connected' : 'Connect Wallet'}
             </Button>
           </Tooltip>
