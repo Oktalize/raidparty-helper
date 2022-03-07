@@ -12,8 +12,9 @@ import {
 import type { NextPage } from 'next'
 import { useEthers, useCall, useToken } from '@usedapp/core'
 import { Contract } from '@ethersproject/contracts'
-import { TOKEN_ABI, TOKEN_ADDRESS } from '../constants'
+import { CFTILP_ABI, ETHUSD_ABI, TOKEN_ABI, TOKEN_ADDRESS } from '../constants'
 import Status from '../components/Status'
+import { useState } from 'react'
 
 // TODO: Fix timer for boss to update every block
 // TODO: Move inline styles into chakra theme
@@ -28,6 +29,11 @@ type RaidBoss = {
   weight: any
   blockHealth: any
   multiplier: any
+}
+
+type CFTIETHProps = {
+  reserve0: any
+  reserve1: any
 }
 
 const formatUnits = (number: any, decimal: any) => {
@@ -113,8 +119,45 @@ const useCFTIBalance = (address: string | null | undefined) => {
   return value?.[0]
 }
 
+const useCFTIPrice = () => {
+  const { value, error } =
+    useCall({
+      contract: new Contract(TOKEN_ADDRESS['CFTILP'], CFTILP_ABI), // instance of called contract
+      method: 'getReserves', // Method to be called
+      args: [], // Method arguments
+    }) ?? {}
+  if (error) {
+    console.error(error.message)
+    return 0
+  }
+  return value
+}
+
+const useETHUSDPrice = () => {
+  const { value, error } =
+    useCall({
+      contract: new Contract(TOKEN_ADDRESS['ETHUSD'], ETHUSD_ABI), // instance of called contract
+      method: 'latestRoundData', // Method to be called
+      args: [], // Method arguments
+    }) ?? {}
+  if (error) {
+    console.error(error.message)
+    return 0
+  }
+  return value
+}
+
+const calculateCFTIPrice = (CFTIPrice: any, ETHUSDPrice: any) => {
+  const CFTIETH =
+    formatUnits(CFTIPrice?._reserve0, 18) /
+    formatUnits(CFTIPrice?._reserve1, 18)
+  return CFTIETH * formatUnits(ETHUSDPrice?.answer, 8)
+}
+
 const Home: NextPage = () => {
   const { activateBrowserWallet, deactivate, account, chainId } = useEthers()
+  const [usdToggled, setUsdToggled] = useState(false)
+  const CFTIUSDPrice = calculateCFTIPrice(useCFTIPrice(), useETHUSDPrice())
   const CFTI = useToken(TOKEN_ADDRESS['CFTI'])
   const CFTIBalance = formatUnits(useCFTIBalance(account), CFTI?.decimals)
   const unclaimedCFTI = formatUnits(useUnclaimedCFTI(account), CFTI?.decimals)
@@ -129,6 +172,24 @@ const Home: NextPage = () => {
           <Img w="16rem" src="/logo.png" /> Tracker
         </Heading>
         <Flex mt="25px" position="absolute" w="95%" justifyContent="right">
+          <Tooltip
+            bg="purple.300"
+            color="white"
+            placement="left"
+            hasArrow
+            label={'Click to toggle between CFTI and USD'}
+          >
+            <Button
+              size="xs"
+              pb="6px"
+              mr="20px"
+              onClick={() => {
+                setUsdToggled(!usdToggled)
+              }}
+            >
+              CFTI: ${CFTIUSDPrice.toFixed(2)}
+            </Button>
+          </Tooltip>
           <Tooltip
             bg="purple.300"
             color="white"
@@ -169,6 +230,8 @@ const Home: NextPage = () => {
           multiplier={raidBoss?.multiplier}
           unclaimedBalance={unclaimedCFTI}
           tokenBalance={CFTIBalance}
+          usdPrice={CFTIUSDPrice}
+          usdToggled={usdToggled}
         />
       </Container>
       <Box mt="80px" textAlign="center" textColor="white.50">

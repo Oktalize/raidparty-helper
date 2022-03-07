@@ -22,6 +22,8 @@ type StatusProps = {
   unclaimedBalance: any
   tokenBalance: any
   connected: any
+  usdPrice: any
+  usdToggled: boolean
 }
 
 const calculateCFTI = ({
@@ -49,6 +51,8 @@ const Status = ({
   unclaimedBalance,
   tokenBalance,
   connected,
+  usdPrice,
+  usdToggled,
 }: StatusProps) => {
   const [counter, setCounter] = useState(0)
 
@@ -188,22 +192,28 @@ const Status = ({
         </Text>
         <Text color={connected ? '' : 'gray'}>
           <Text as="span" fontSize="md" color={connected ? 'white' : 'gray'}>
-            {(bossCfti - nextCfti).toFixed(3)}
+            {usdToggled
+              ? ((bossCfti - nextCfti) * usdPrice).toFixed(3)
+              : (bossCfti - nextCfti).toFixed(3)}
           </Text>{' '}
           of{' '}
           <Text as="span" color={connected ? 'white' : 'gray'} fontSize="md">
-            {bossCfti.toFixed(3)}
+            {usdToggled
+              ? (bossCfti * usdPrice).toFixed(3)
+              : bossCfti.toFixed(3)}
           </Text>{' '}
-          CFTI
+          {usdToggled ? 'USD' : 'CFTI'}
         </Text>
         <Text fontSize="md" fontWeight="bold" color={connected ? '' : 'gray'}>
           Per Block:
         </Text>
         <Text color={connected ? '' : 'gray'}>
           <Text as="span" fontSize="md" color={connected ? 'white' : 'gray'}>
-            {connected && (bossCfti / bossMaxHealth).toFixed(4)}
+            {connected && usdToggled
+              ? ((bossCfti / bossMaxHealth) * usdPrice).toFixed(4)
+              : (bossCfti / bossMaxHealth).toFixed(4)}
           </Text>{' '}
-          CFTI
+          {usdToggled ? 'USD' : 'CFTI'}
         </Text>
         <Text fontSize="md" fontWeight="bold" color={connected ? '' : 'gray'}>
           Time Left:
@@ -229,8 +239,14 @@ const Status = ({
               hasArrow
               label={
                 <>
-                  <Text>Unclaimed: {unclaimedBalance.toFixed(3)}</Text>
-                  <Text>Balance: {tokenBalance.toFixed(3)}</Text>
+                  <Text>
+                    Unclaimed: {unclaimedBalance.toFixed(3)} ($
+                    {(unclaimedBalance * usdPrice).toFixed(3)})
+                  </Text>
+                  <Text>
+                    Balance: {tokenBalance.toFixed(3)} ($
+                    {(tokenBalance * usdPrice).toFixed(3)})
+                  </Text>
                 </>
               }
             >
