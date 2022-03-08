@@ -66,7 +66,7 @@ const Donate = () => {
               Some people asked how to donate to me, so I added it. While I
               appreciate the support, I cannot promise anything in return. I
               have no affliation with the Raid Party team, I am just a dude who
-              likes building tools.
+              likes building things.
             </Text>
             <Flex justify="center" mt="25px">
               <Img src="/heart.png" w="32px" />
