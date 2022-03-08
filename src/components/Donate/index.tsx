@@ -42,7 +42,7 @@ const Donate = () => {
     <>
       <Flex justify="center">
         <Button onClick={onOpen} variant="link" size="xs">
-          <Text fontSize="xs" mb="5px">
+          <Text fontSize="xs" mb="5px" color="white" fontWeight="normal">
             Donate
           </Text>
           <Img src="/heart.png" h="19px" />
