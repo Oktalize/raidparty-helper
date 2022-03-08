@@ -15,8 +15,10 @@ import { Contract } from '@ethersproject/contracts'
 import { CFTILP_ABI, ETHUSD_ABI, TOKEN_ABI, TOKEN_ADDRESS } from '../constants'
 import Status from '../components/Status'
 import { useState } from 'react'
+import Donate from '../components/Donate'
 
 // TODO: Fix timer for boss to update every block
+// TODO: Boss table for calculating your CFTI earnings based on boss
 // TODO: Move inline styles into chakra theme
 // TODO: Move more functions into separate files
 // TODO: More layout changes
@@ -179,16 +181,20 @@ const Home: NextPage = () => {
             hasArrow
             label={'Click to toggle between CFTI and USD'}
           >
-            <Button
-              size="xs"
-              pb="6px"
-              mr="20px"
-              onClick={() => {
-                setUsdToggled(!usdToggled)
-              }}
-            >
-              CFTI: ${CFTIUSDPrice.toFixed(2)}
-            </Button>
+            {account ? (
+              <Button
+                size="xs"
+                pb="6px"
+                mr="20px"
+                onClick={() => {
+                  setUsdToggled(!usdToggled)
+                }}
+              >
+                CFTI: ${CFTIUSDPrice.toFixed(2)}
+              </Button>
+            ) : (
+              <></>
+            )}
           </Tooltip>
           <Tooltip
             bg="purple.300"
@@ -275,6 +281,7 @@ const Home: NextPage = () => {
             @oktalize
           </Link>
         </Text>
+        <Donate />
       </Box>
     </>
   )

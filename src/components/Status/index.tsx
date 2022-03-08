@@ -118,10 +118,12 @@ const Status = ({
     } else if (bossTypeNum === 5) {
       return (
         <>
-          <Img src="/boss-crown-large.png" />
-          <Img src="/boss-crown-large.png" />
-          <Img src="/boss-crown-large.png" />
-          <Img src="/boss-crown-large.png" />
+          <Img src="/boss-crown-small.png" />
+          <Img src="/boss-crown-small.png" />
+          <Img src="/boss-crown-small.png" />
+          <Img src="/boss-crown-small.png" />
+          <Img src="/boss-crown-small.png" />
+          <Img src="/boss-crown-small.png" />
         </>
       )
     } else {
