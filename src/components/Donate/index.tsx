@@ -64,8 +64,9 @@ const Donate = () => {
           <ModalBody>
             <Text color="white" fontSize="md" textAlign="center">
               Some people asked how to donate to me, so I added it. While I
-              appreciate the support, I cannot promise anything in return. All
-              donations are sent directly to my Ethereum wallet.
+              appreciate the support, I cannot promise anything in return. I
+              have no affliation with the Raid Party team, I am just a dude who
+              likes building tools.
             </Text>
             <Flex justify="center" mt="25px">
               <Img src="/heart.png" w="32px" />
@@ -100,11 +101,10 @@ const Donate = () => {
               </Button>
             </Flex>
             <Text fontSize="sm" textAlign="center">
-              You can also donate directly to{' '}
+              All donations are sent directly to{' '}
               <Text as="span" color="white" fontSize="sm">
                 oktal.eth
               </Text>{' '}
-              if you want.
             </Text>
           </ModalBody>
         </ModalContent>
