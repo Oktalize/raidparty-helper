@@ -11,10 +11,10 @@ import {
   Flex,
   Img,
 } from '@chakra-ui/react'
-
-import { utils } from 'ethers'
 import { useSendTransaction } from '@usedapp/core'
 import { useEffect, useState } from 'react'
+import { BigNumber } from '@ethersproject/bignumber'
+import { parseEther } from 'ethers/utils/units'
 
 const Donate = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -27,7 +27,7 @@ const Donate = () => {
     if (amount) {
       sendTransaction({
         to: '0x51EC15594230DDf21A7EA5A4aC392BB8Dbda527E',
-        value: amount ? utils.parseEther(amount) : utils.parseEther('0'),
+        value: BigNumber.from(parseEther(amount)),
       })
     }
   }
