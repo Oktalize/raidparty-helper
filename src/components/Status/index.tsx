@@ -59,7 +59,7 @@ const Status = ({
   useEffect(() => {
     if (bossHealth) {
       // if (counter === 0) {
-      setCounter(bossHealth * 15)
+      setCounter(bossHealth * 13.22)
       // } else if (counter > bossHealth * 15) {
       //   setCounter(bossHealth * 15)
       // }
