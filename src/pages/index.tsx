@@ -14,7 +14,7 @@ import { useEthers, useCall, useToken } from '@usedapp/core'
 import { Contract } from '@ethersproject/contracts'
 import { UNIV3_ABI, ETHUSD_ABI, TOKEN_ABI, TOKEN_ADDRESS } from '../constants'
 import Status from '../components/Status'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Donate from '../components/Donate'
 import { sqrtPrice } from '../utils'
 
@@ -31,11 +31,6 @@ type RaidBoss = {
   weight: any
   blockHealth: any
   multiplier: any
-}
-
-type CFTIETHProps = {
-  reserve0: any
-  reserve1: any
 }
 
 const formatUnits = (number: any, decimal: any) => {
@@ -155,7 +150,8 @@ const calculateCFTIPrice = (CFTIPrice: any, ETHUSDPrice: any) => {
 }
 
 const Home: NextPage = () => {
-  const { activateBrowserWallet, deactivate, account, chainId } = useEthers()
+  const { activateBrowserWallet, active, deactivate, account, chainId } =
+    useEthers()
   const [usdToggled, setUsdToggled] = useState(false)
   const CFTIUSDPrice = calculateCFTIPrice(useCFTIPrice(), useETHUSDPrice())
   const CFTI = useToken(TOKEN_ADDRESS['CFTI'])
@@ -164,6 +160,12 @@ const Home: NextPage = () => {
   const raidDmg = usePartyDPB(account)
   const raidData = useRaidData()
   const raidBoss = useRaidBosses(Number(raidData?.boss))
+
+  useEffect(() => {
+    if (!active) {
+      activateBrowserWallet()
+    }
+  })
 
   return (
     <>

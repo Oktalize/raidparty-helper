@@ -22,12 +22,8 @@ Router.events.on('routeChangeError', () => NProgress.done())
 const MotionBox = motion(Box)
 
 const config: Config = {
-  readOnlyChainId: Mainnet.chainId,
-  readOnlyUrls: {
-    [Mainnet.chainId]:
-      'https://mainnet.infura.io/v3/62687d1a985d4508b2b7a24827551934',
-  },
   autoConnect: true,
+  networks: [Mainnet],
 }
 
 function NextApp({ Component, pageProps, router }: AppProps): JSX.Element {
