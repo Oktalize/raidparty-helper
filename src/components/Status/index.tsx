@@ -64,10 +64,12 @@ const Status = ({
   usdToggled,
 }: StatusProps) => {
   const [counter, setCounter] = useState(0)
-  const avgBlockTime = 13.25
+  const avgBlockTime = 14
 
   useInterval(() => {
-    setCounter(counter - 1)
+    if (counter > 0) {
+      setCounter(counter - 1)
+    }
   }, 1000)
 
   useEffect(() => {
