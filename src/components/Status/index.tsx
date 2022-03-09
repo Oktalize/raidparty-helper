@@ -12,6 +12,7 @@ import BannerBox from '../Global/BannerBox'
 
 import { BOSS_TYPES } from '../../constants'
 import { useState, useEffect } from 'react'
+import { useInterval } from '../../hooks/useInterval'
 
 type StatusProps = {
   bossTypeNum?: any
@@ -55,24 +56,15 @@ const Status = ({
   usdToggled,
 }: StatusProps) => {
   const [counter, setCounter] = useState(0)
+  const avgBlockTime = 13.25
+
+  useInterval(() => {
+    setCounter(counter - 1)
+  }, 1000)
 
   useEffect(() => {
-    if (bossHealth) {
-      // if (counter === 0) {
-      setCounter(bossHealth * 13.22)
-      // } else if (counter > bossHealth * 15) {
-      //   setCounter(bossHealth * 15)
-      // }
-    }
-    // const bossTimer = setTimeout(() => {
-    //   if (counter > 0) {
-    //     setCounter(counter - 1)
-    //   }
-    // }, 1000)
-    // return () => {
-    //   clearTimeout(bossTimer)
-    // }
-  }, [counter, bossHealth])
+    setCounter(bossHealth * avgBlockTime)
+  }, [bossHealth])
 
   const BossCrowns = ({ bossTypeNum }: { bossTypeNum?: any }) => {
     if (bossTypeNum === 0) {

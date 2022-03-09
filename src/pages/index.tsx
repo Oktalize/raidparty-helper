@@ -12,12 +12,12 @@ import {
 import type { NextPage } from 'next'
 import { useEthers, useCall, useToken } from '@usedapp/core'
 import { Contract } from '@ethersproject/contracts'
-import { CFTILP_ABI, ETHUSD_ABI, TOKEN_ABI, TOKEN_ADDRESS } from '../constants'
+import { UNIV3_ABI, ETHUSD_ABI, TOKEN_ABI, TOKEN_ADDRESS } from '../constants'
 import Status from '../components/Status'
 import { useState } from 'react'
 import Donate from '../components/Donate'
+import { sqrtPrice } from '../utils'
 
-// TODO: Fix timer for boss to update every block
 // TODO: Boss table for calculating your CFTI earnings based on boss
 // TODO: Move inline styles into chakra theme
 // TODO: Move more functions into separate files
@@ -124,8 +124,8 @@ const useCFTIBalance = (address: string | null | undefined) => {
 const useCFTIPrice = () => {
   const { value, error } =
     useCall({
-      contract: new Contract(TOKEN_ADDRESS['CFTILP'], CFTILP_ABI), // instance of called contract
-      method: 'getReserves', // Method to be called
+      contract: new Contract(TOKEN_ADDRESS['CFTILP'], UNIV3_ABI), // instance of called contract
+      method: 'slot0', // Method to be called
       args: [], // Method arguments
     }) ?? {}
   if (error) {
@@ -150,9 +150,7 @@ const useETHUSDPrice = () => {
 }
 
 const calculateCFTIPrice = (CFTIPrice: any, ETHUSDPrice: any) => {
-  const CFTIETH =
-    formatUnits(CFTIPrice?._reserve0, 18) /
-    formatUnits(CFTIPrice?._reserve1, 18)
+  const CFTIETH = sqrtPrice(CFTIPrice?.sqrtPriceX96, [18, 18])
   return CFTIETH * formatUnits(ETHUSDPrice?.answer, 8)
 }
 
