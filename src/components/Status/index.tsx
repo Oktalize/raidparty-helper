@@ -13,6 +13,14 @@ import BannerBox from '../Global/BannerBox'
 import { BOSS_TYPES } from '../../constants'
 import { useState, useEffect } from 'react'
 import { useInterval } from '../../hooks/useInterval'
+import {
+  BossCrownBasic,
+  BossCrownEpic,
+  BossCrownGodly,
+  BossCrownLegendary,
+  BossCrownMythic,
+  BossCrownStrong,
+} from './BossCrowns'
 
 type StatusProps = {
   bossTypeNum?: any
@@ -66,67 +74,6 @@ const Status = ({
     setCounter(bossHealth * avgBlockTime)
   }, [bossHealth])
 
-  const BossCrowns = ({ bossTypeNum }: { bossTypeNum?: any }) => {
-    if (bossTypeNum === 0) {
-      return (
-        <>
-          <Img src="/boss-crown-small.png" />
-        </>
-      )
-    } else if (bossTypeNum === 1) {
-      return (
-        <>
-          <Img src="/boss-crown-small.png" />
-          <Img src="/boss-crown-small.png" />
-        </>
-      )
-    } else if (bossTypeNum === 2) {
-      return (
-        <>
-          <Img src="/boss-crown-small.png" />
-          <Img src="/boss-crown-small.png" />
-          <Img src="/boss-crown-small.png" />
-        </>
-      )
-    } else if (bossTypeNum === 3) {
-      return (
-        <>
-          <Img src="/boss-crown-small.png" />
-          <Img src="/boss-crown-small.png" />
-          <Img src="/boss-crown-small.png" />
-          <Img src="/boss-crown-small.png" />
-        </>
-      )
-    } else if (bossTypeNum === 4) {
-      return (
-        <>
-          <Img src="/boss-crown-small.png" />
-          <Img src="/boss-crown-small.png" />
-          <Img src="/boss-crown-large.png" />
-          <Img src="/boss-crown-small.png" />
-          <Img src="/boss-crown-small.png" />
-        </>
-      )
-    } else if (bossTypeNum === 5) {
-      return (
-        <>
-          <Img src="/boss-crown-small.png" />
-          <Img src="/boss-crown-small.png" />
-          <Img src="/boss-crown-small.png" />
-          <Img src="/boss-crown-small.png" />
-          <Img src="/boss-crown-small.png" />
-          <Img src="/boss-crown-small.png" />
-        </>
-      )
-    } else {
-      return (
-        <>
-          <Img src="/boss-crown-small.png" />
-        </>
-      )
-    }
-  }
-
   const bossPercent = () => {
     return (bossHealth / bossMaxHealth) * 100
   }
@@ -158,7 +105,12 @@ const Status = ({
         {connected && (
           <Flex justify="center">
             <Flex h="32px">
-              <BossCrowns bossTypeNum={bossTypeNum} />
+              {bossTypeNum === 0 && <BossCrownBasic />}
+              {bossTypeNum === 1 && <BossCrownStrong />}
+              {bossTypeNum === 2 && <BossCrownEpic />}
+              {bossTypeNum === 3 && <BossCrownMythic />}
+              {bossTypeNum === 4 && <BossCrownLegendary />}
+              {bossTypeNum === 5 && <BossCrownGodly />}
             </Flex>
           </Flex>
         )}
