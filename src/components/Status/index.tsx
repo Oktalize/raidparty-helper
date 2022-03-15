@@ -73,11 +73,11 @@ const Status = ({
   }, 1000)
 
   useEffect(() => {
-    setCounter(bossHealth * avgBlockTime)
+    setCounter((bossHealth + 1) * avgBlockTime)
   }, [bossHealth])
 
   const bossPercent = () => {
-    return (bossHealth / bossMaxHealth) * 100
+    return ((bossHealth + 1) / bossMaxHealth) * 100
   }
 
   const bossPercentInverse = () => {
