@@ -77,7 +77,7 @@ const Status = ({
   }, [bossHealth])
 
   const bossPercent = () => {
-    return ((bossHealth + 1) / bossMaxHealth) * 100
+    return (bossHealth / bossMaxHealth) * 100
   }
 
   const bossPercentInverse = () => {
