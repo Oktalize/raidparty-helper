@@ -112,7 +112,15 @@ const customTheme = extendTheme({
                     },
                     _hover: {
                         bg: '#7c41ea',
-                        transform: 'scale(1.07)'
+                        transform: 'scale(1.07)',
+                        _disabled: {
+                            bg: '#7c41ea',
+                            transform: 'none'
+                        }
+                    },
+                    _disabled: {
+                        opacity: 1,
+                        boxShadow: '0 -3px 0 0 #703bd3, 0 3px 0 0 #4c2398, -3px 0 0 0 #6331c0, 3px 0 0 0 #6331c0, 0 0 0 3px #0f0c1b, 0 -6px 0 0 #0f0c1b, 0 6px 0 0 #0f0c1b, -6px 0 0 0 #0f0c1b, 6px 0 0 0 #0f0c1b'
                     }
                 }
             }
