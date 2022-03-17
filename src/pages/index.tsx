@@ -12,7 +12,13 @@ import {
 import type { NextPage } from 'next'
 import { useEthers, useCall, useToken } from '@usedapp/core'
 import { Contract } from '@ethersproject/contracts'
-import { UNIV3_ABI, ETHUSD_ABI, TOKEN_ABI, TOKEN_ADDRESS } from '../constants'
+import {
+  UNIV3_ABI,
+  ETHUSD_ABI,
+  TOKEN_ABI,
+  TOKEN_ADDRESS,
+  SEEDERV2_ABI,
+} from '../constants'
 import Status from '../components/Status'
 import { useEffect, useState } from 'react'
 import Donate from '../components/Donate'
@@ -144,14 +150,53 @@ const useETHUSDPrice = () => {
   return value
 }
 
+const useRaidSeeder = () => {
+  const { value, error } =
+    useCall({
+      contract: new Contract(TOKEN_ADDRESS['RAID'], TOKEN_ABI), // instance of called contract
+      method: 'seeder', // Method to be called
+      args: [], // Method arguments
+    }) ?? {}
+  if (error) {
+    console.error(error.message)
+    return 0
+  }
+
+  return value?.[0]
+}
+
+const useNextSeedBatch = () => {
+  const contract = new Contract(TOKEN_ADDRESS['SEEDER'], SEEDERV2_ABI)
+  const { value, error } =
+    useCall({
+      contract,
+      method: 'getNextAvailableBatch',
+      args: [],
+    }) ?? {}
+
+
+
+  if (error) {
+    console.error(error.message)
+    return null
+  }
+  return value?.[0]
+}
+
 const calculateCFTIPrice = (CFTIPrice: any, ETHUSDPrice: any) => {
   const CFTIETH = sqrtPrice(CFTIPrice?.sqrtPriceX96, [18, 18])
   return CFTIETH * formatUnits(ETHUSDPrice?.answer, 8)
 }
 
 const Home: NextPage = () => {
-  const { activateBrowserWallet, active, deactivate, account, chainId } =
-    useEthers()
+  const {
+    activateBrowserWallet,
+    active,
+    deactivate,
+    account,
+    chainId,
+    library,
+  } = useEthers()
   const [usdToggled, setUsdToggled] = useState(false)
   const CFTIUSDPrice = calculateCFTIPrice(useCFTIPrice(), useETHUSDPrice())
   const CFTI = useToken(TOKEN_ADDRESS['CFTI'])
@@ -160,6 +205,20 @@ const Home: NextPage = () => {
   const raidDmg = usePartyDPB(account)
   const raidData = useRaidData()
   const raidBoss = useRaidBosses(Number(raidData?.boss))
+  const nextSeedBatch = formatUnits(useNextSeedBatch(), -3)
+
+  const seederAddr = useRaidSeeder()
+  if (account && seederAddr && `${seederAddr}`.toLowerCase() !== TOKEN_ADDRESS['SEEDER'].toLowerCase()) {
+    console.warn("Mismatch between known SeederV2 contract and a Fighter seeder - the seed data is probably stale")
+  }
+
+  const [timeNow, setTimeNow] = useState(new Date().getTime())
+  useEffect(() => {
+    const timer = setInterval(() => setTimeNow(new Date().getTime()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const timeTillSeed = nextSeedBatch - timeNow
 
   useEffect(() => {
     if (!active) {
@@ -174,6 +233,43 @@ const Home: NextPage = () => {
           <Img w="16rem" src="/logo.png" /> Tracker
         </Heading>
         <Flex mt="25px" position="absolute" w="95%" justifyContent="right">
+          <Tooltip
+            bg="purple.300"
+            color="white"
+            placement="left"
+            hasArrow
+            label={
+              'You can speed up hero/fighter reveal by manually updating the global random seed used by the game'
+            }
+          >
+            <Button
+              size="xs"
+              pb="6px"
+              mr="20px"
+              isDisabled={timeTillSeed > 0}
+              onClick={() => {
+                const contract = new Contract(
+                  TOKEN_ADDRESS['SEEDER'],
+                  SEEDERV2_ABI
+                )
+                const signer = account && library?.getSigner(account)
+                const contractWithSigner = signer && contract.connect(signer)
+                if (contractWithSigner) {
+                  contractWithSigner.executeRequestMulti() // from SeederV2
+                }
+              }}
+            >
+              Next seed{' '}
+              {!account
+                ? 'unavailable'
+                : timeTillSeed <= 0
+                ? 'available'
+                : `in ${new Date(timeTillSeed).toLocaleTimeString([], {
+                    minute: '2-digit',
+                    second: '2-digit',
+                  })}`}
+            </Button>
+          </Tooltip>
           <Tooltip
             bg="purple.300"
             color="white"
