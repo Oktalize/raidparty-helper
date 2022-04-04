@@ -107,6 +107,11 @@ const customTheme = extendTheme({
                     _focus: {
                         boxShadow: '0 -2px 0 0 #474cc3, 0 2px 0 0 #22268e, -2px 0 0 0 #393eba, 2px 0 0 0 #393eba, 0 0 0 2px #0f0c1b, 0 -4px 0 0 #0f0c1b, 0 4px 0 0 #0f0c1b, -4px 0 0 0 #0f0c1b, 4px 0 0 0 #0f0c1b',
                     },
+                    _active: {
+                        bg: "rgb(49 54 176)",
+                        filter: "brightness(1.5)",
+                        boxShadow: '0 -2px 0 0 #474cc3, 0 2px 0 0 #22268e, -2px 0 0 0 #393eba, 2px 0 0 0 #393eba, 0 0 0 2px #0f0c1b, 0 -4px 0 0 #0f0c1b, 0 4px 0 0 #0f0c1b, -4px 0 0 0 #0f0c1b, 4px 0 0 0 #0f0c1b',
+                    },
                     _hover: {
                         bg: "rgb(49 54 176)",
                         filter: "brightness(1.25)",
